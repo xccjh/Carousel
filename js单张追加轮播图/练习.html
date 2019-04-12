@@ -1,0 +1,91 @@
+<script type="text/javascript">
+		function animate(element,target) {
+			var current=element.offsetLeft;
+			var step=Math.abs(target-current)/50;
+			clearInterval(element.timeId);
+			element.timeId=setInterval(function () {
+				strp=(target-current>0)?step:-step;
+				current+=strp;
+				if (Math.abs(target-current)<Math.abs(step)) {
+					clearInterval(element.timeId);
+					element.style.left=target+"px";
+					flag=true;
+				}else {
+					element.style.left=current+"px";
+				}
+			}, 20)
+
+		}
+		var box=document.getElementsByClassName("box")[0];
+		var inner=document.getElementsByClassName("inner")[0];
+		var imgWidth=inner.offsetWidth;
+		var ulObj=inner.children[0];
+		var list=ulObj.children;
+		var square=document.getElementsByClassName("square")[0];
+		var spanlist=square.children;
+		var focusD=document.getElementsByClassName("focusD")[0];
+		var left=document.getElementsByClassName("left")[0];
+		var right = document.getElementsByClassName("right")[0];
+		var index=0;
+		var flag=true;
+		for (var i = 0; i < list.length; i++) {
+				spanlist[i].setAttribute("index",i);
+				spanlist[i].onclick=function() {
+				for (var i = 0; i < square.children.length-1; i++) {
+					square.children[i].className="";
+				}
+				this.className="current";
+				index=this.getAttribute("index");
+				animate(ulObj,-1*index*imgWidth)
+			}
+		}
+		ulObj.appendChild(list[0].cloneNode(true));
+		var timerId= setInterval(clickHandle,2000);
+		function clickHandle() {
+			if (!flag) {
+				return;
+			}
+			flag=false;
+			if (index==spanlist.length) {
+				index=0;
+				ulObj.style.left = 0+'px';
+			}
+			index++;
+			animate(ulObj,-index*imgWidth);
+			if (index==spanlist.length) {
+				spanlist[spanlist.length-1].className="";
+				spanlist[0].className="current";
+			}else {
+				for (var i = 0; i < square.children.length; i++) {
+					square.children[i].className="";
+				}
+				square.children[index].className="current";
+			}
+		}
+		right.onclick=clickHandle;
+		left.onclick=function (){
+			if (!flag) {
+				return;
+			}
+			flag=false;
+			if (index==0) {
+				index= square.children.length;
+				ulObj.style.left=-1*index*imgWidth+"px";
+			}
+			index--;
+			animate(ulObj,-1*index*imgWidth);
+			for (var i = 0; i < square.children.length; i++) {
+				 square.children[i].className="";
+			}
+			 square.children[index].className="current";
+		}
+		box.onmouseenter=function(){
+			clearInterval(timerId);
+			focusD.style.display = 'block';
+		}
+		box.onmouseleave=function(){
+			focusD.style.display="none";
+			timerId=setInterval(clickHandle
+			,1000)
+		}
+	</script>

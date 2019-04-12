@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+		<title></title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			.arrow {
+				width: 100%;
+				position: absolute;
+				z-index: 999;
+				height: 60px;
+				background-color: transparent;
+				transform: translateY(50%);
+				top: 140px;
+			}
+			.arrow .left,
+			.arrow .right {
+				width: 30px;
+				height: 60px;
+				background-color: rgba(0, 0, 0, 0.2);
+				position: absolute;
+				top: 0%;
+				color: rgba(255, 255, 255, .2);
+				text-align: center;
+				line-height: 60px;
+				cursor: pointer;
+			}
+			.arrow .left {
+				left: 0;
+			}
+			.arrow .right {
+				right: 0;
+			}
+			.carousel-wrap{position: relative; width: 675px;height: 393px;overflow: hidden;margin: 20px auto;}
+			.carousel-wrap > .list{list-style: none;overflow: hidden;position: absolute;}
+			.carousel-wrap > .list > li{float: left;}
+			.carousel-wrap > .list > li > a,
+			.carousel-wrap > .list > li > a >img{display: block;}
+			.carousel-wrap > .list > li > a >img{width: 100%;}
+			.carousel-wrap > .points-wrap{position: absolute;bottom: 0;width: 100%;text-align: center;z-index: 1;}
+			.carousel-wrap > .points-wrap > span{display: inline-block;width: 10px;height: 10px;border-radius: 50%;
+									background: green;margin-left:5px;cursor: pointer;}
+			.carousel-wrap > .points-wrap > span.active{background: deeppink;}
+		</style>
+	</head>
+	<body>
+		<div id="wrap">
+			<div class="carousel-wrap" needAuto >
+				<div class="points-wrap"></div>
+				<div class="arrow">
+					<div class="left">></div>
+					<div class="right"><</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		window.onload=function(){
+			var arr=["img/01.jpg","img/02.jpg","img/03.jpg","img/04.jpg","img/05.jpg"]
+			carousel(arr);
+		}
+		// transition动画功能完善函数
+		function css (node,type,val){
+			if(typeof node ==="object" && typeof node["transform"] ==="undefined" ){
+				node["transform"]={};
+			}
+			if(arguments.length>=3){
+				//设置动画参数
+				var text ="";
+				node["transform"][type] = val;
+				for( item in node["transform"]){
+					if(node["transform"].hasOwnProperty(item)){
+						switch (item){
+							case "translateX":
+							case "translateY":
+								text +=  item+"("+node["transform"][item]+"px)";
+								break;
+							case "scale":
+								text +=  item+"("+node["transform"][item]+")";
+								break;
+							case "rotate":
+								text +=  item+"("+node["transform"][item]+"deg)";
+								break;
+						}
+					}
+				}
+				node.style.transform = node.style.webkitTransform = text;
+			}else if(arguments.length==2){
+				//读取动画参数
+				val =node["transform"][type];
+				if(typeof val === "undefined"){
+					switch (type){
+						case "translateX":
+						case "translateY":
+						case "rotate":
+							val =0;
+							break;
+						case "scale":
+							val =1;
+							break;
+					}
+				}
+				return val;
+			}
+		}
+		//轮播图函数
+		function carousel (arr){
+				//1.动态生成元素布局
+					var carouselWrap = document.querySelector(".carousel-wrap");
+					// 记录一组图片的长度
+					var pointslength = arr.length;
+					//拼接双份，实现无缝
+					arr=arr.concat(arr);
+					// 动态生成ul和li,img标签和添加样式
+					var ulNode = document.createElement("ul");
+					// 动态生成样式标签为元素添加样式
+					var styleNode = document.createElement("style");
+					ulNode.classList.add("list");
+					for(var i=0;i<arr.length;i++){
+						ulNode.innerHTML+='<li><a href="javascript:;"><img src="'+arr[i]+'"/></a></li>';
+					}
+					// 写样式
+					styleNode.innerHTML=".carousel-wrap > .list > li{width: "+(1/arr.length*100)+"%;}.carousel-wrap > .list{width: "+arr.length+"00%}";
+					carouselWrap.appendChild(ulNode);
+					document.head.appendChild(styleNode);
+					// 图片节点
+					var imgNodes = document.querySelector(".carousel-wrap > .list > li > a >img");
+					// 图片高度
+					setTimeout(function(){
+						carouselWrap.style.height=imgNodes.offsetHeight+"px";
+					},100)
+					//动态添加小圆点标签
+					var pointsWrap = document.querySelector(".carousel-wrap > .points-wrap");
+						for(var i=0;i<pointslength;i++){
+							if(i==0){
+								pointsWrap.innerHTML+='<span class="active"></span>';
+							}else{
+								pointsWrap.innerHTML+='<span></span>';
+							}
+						}
+					// 动态生成小圆点注册事件移动轮播图
+					var pointsSpan = document.querySelectorAll(".carousel-wrap > .points-wrap > span");
+					for (var i = 0; i < pointsSpan.length; i++) {
+						pointsSpan[i].setAttribute("indexs", i);
+						pointsSpan[i].onmouseenter=function () {
+							if (Math.abs(index)>pointslength.length) {
+								index=(-1)*(parseInt(this.getAttribute("indexs"))+5);
+								ulNode.style.transition="none";
+								clearInterval(timer);
+								ulNode.style.transition=".3s transform";
+								css(ulNode,"translateX",index*imgNodes.offsetWidth);
+								xiaoyuandian(index);
+							}else {
+								index=(-1)*(parseInt(this.getAttribute("indexs")));
+								ulNode.style.transition="none";
+								clearInterval(timer);
+								ulNode.style.transition=".3s transform";
+								css(ulNode,"translateX",index*imgNodes.offsetWidth);
+								xiaoyuandian(index);
+							}
+						}
+					}
+					// 定时器ID
+					var timer = null;
+					//节流阀
+					var flag=true;
+					// 左右箭头
+					var index=0;
+					var left = document.getElementsByClassName("left")[0];
+					var right = document.getElementsByClassName("right")[0];
+				//2.实现点击无缝轮播
+				/*点击第一组的第一张时 瞬间跳到第二组的第一张，点击第二组的最后一张时  瞬间跳到第一组的最后一张*/
+				//index代表ul的位置
+				// 1.点击左箭头轮播
+				left.addEventListener("click",function(ev){
+					if (flag) {
+						//清除定时器
+						clearInterval(timer);
+						ulNode.style.transition="none";
+							index = css(ulNode,"translateX")/imgNodes.offsetWidth;
+							 if(-index ==(arr.length-1)){
+								index = -(pointslength-1)
+								ulNode.style.transition="none";
+								css(ulNode,"translateX",index*imgNodes.offsetWidth)
+							}
+							setTimeout(function () {
+							index--;
+							ulNode.style.transition=".3s transform";
+							flag=false;
+							css(ulNode,"translateX",index*imgNodes.offsetWidth);
+							//防止快速点击
+							setTimeout(function () {
+								flag=true;
+								xiaoyuandian(index);
+							},300)
+						},50)
+						}
+				})
+				// 点击右箭头轮播（原理同左箭头）
+				right.addEventListener("click",function(ev){
+					if (flag) {
+						clearInterval(timer);
+						ulNode.style.transition="none";
+						if(-index === 0){
+								index = -pointslength;
+								ulNode.style.transition="none";
+								css(ulNode,"translateX",index*imgNodes.offsetWidth)
+							}
+						setTimeout(function () {
+							index++;
+							ulNode.style.transition=".3s transform";
+							flag=false;
+							css(ulNode,"translateX",index*imgNodes.offsetWidth);
+							setTimeout(function () {
+								flag=true;
+								xiaoyuandian(index);
+							},300)
+							},50)
+
+					}
+				})
+				carouselWrap.onmouseenter=function () {
+					left.style.backgroundColor="rgba(0, 0, 0, 0.6)";
+					left.style.color="rgba(255, 255, 255, 0.6)";
+					right.style.backgroundColor="rgba(0, 0, 0, 0.6)";
+					right.style.color="rgba(255, 255, 255, 0.6)";
+					clearInterval(timer);
+				}
+				carouselWrap.onmouseleave=function () {
+					left.style.backgroundColor="rgba(0, 0, 0, 0.2)";
+					left.style.color="rgba(255, 255, 255, 0.2)";
+					right.style.backgroundColor="rgba(0, 0, 0, 0.2)";
+					right.style.color="rgba(255, 255, 255, 0.2)";
+					auto();
+				}
+				//3.自动轮播
+				auto();
+				// 自动轮播函数
+				function auto(){
+					timer=setInterval(function(){
+						// 如果是最后一张，跳转到中间那张一样的图
+						if(index == 1-arr.length){
+							// 清除过渡实现瞬间提供瞬间跳转条件
+							ulNode.style.transition="none";
+							// 得到中间那张图片索引
+							index = 1-arr.length/2;
+							// 瞬间跳转
+							css(ulNode,"translateX",index*imgNodes.offsetWidth);
+						}
+						//跳转完后动画正常动画轮播
+						setTimeout(function(){
+							index--;
+							ulNode.style.transition="1s transform";
+							css(ulNode,"translateX",index*imgNodes.offsetWidth);
+							// 小圆点跟随
+							xiaoyuandian(index);
+						},50)
+					},1000)
+				}
+				//小圆点跟随函数
+				function xiaoyuandian(index){
+					for(var i=0;i<pointsSpan.length;i++){
+						pointsSpan[i].classList.remove("active");
+					}
+					pointsSpan[-index%pointslength].classList.add("active");
+				}
+
+		}
+	</script>
+
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		* {
+			margin: 0;
+			padding: 0;
+		}
+		ul {
+			list-style: none
+		}
+		img {
+			vertical-align: top;
+		}
+		#box {
+			width: 590px;
+			height: 470px;
+			/* background-color: yellow; */
+			margin: 20px auto;
+		}
+		.inner {
+			width: 100%;
+			height: 100%;
+			/* background-color: red; */
+			position: relative;
+			/* overflow: hidden; */
+		}
+		ul {
+			width: 600%;
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+		li {
+			float: left;
+			width: 590px;
+			height: 100%;
+		}
+		ul li img {
+			width: 100%;
+			height: 100%;
+		}
+		.square {
+			width: 140px;
+			height: 20px;
+			position: absolute;
+			bottom: 20px;
+			right: 20px;
+		}
+		span {
+			display: inline-block;
+			width: 20px;
+			height: 20px;
+			background-color: yellow;
+			margin-right: 5px;
+			text-align: center;
+			line-height: 20px;
+			border-radius: 50%;
+			color: black;
+			cursor: pointer;
+		}
+		.square span:last-child {
+			margin: 0;
+		}
+		.focusD {
+			height: 60px;
+			width: 100%;
+			position: absolute;
+			top: 50%;
+			left: 0;
+			transform: translateY(-50%);
+		}
+		.focusD .left,
+		.focusD .right {
+			width: 30px;
+			height: 100%;
+			background-color: rgba(0, 0, 0, .6);
+			color: rgba(255,255,255,.6);
+			text-align: center;
+			line-height: 60px;
+			position: absolute;
+			top: 0;
+		}
+		.left {
+			left: 0;
+		}
+		.right {
+			right: 0;
+		}
+		.current {
+			background-color: red;
+		}
+
+	</style>
+</head>
+<body>
+	<div id="box">
+		<div class ="inner">
+			<ul>
+				<li><a href="#"><img src="images/lbt1.jpg" alt=""></a></li>
+				<li><a href="#"><img src="images/lbt2.jpg" alt=""></a></li>
+				<li><a href="#"><img src="images/lbt3.jpg" alt=""></a></li>
+				<li><a href="#"><img src="images/lbt4.jpg" alt=""></a></li>
+				<li><a href="#"><img src="images/lbt5.jpg" alt=""></a></li>
+			</ul>
+			<div class="square">
+				<span class="current">1</span>
+				<span>2</span>
+				<span>3</span>
+				<span>4</span>
+				<span>5</span>
+			</div>
+			<div class="focusD">
+				<div class="left">></div>
+				<div class="right"><</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		function animate(element,target) {
+			var current=element.offsetLeft;
+			step=Math.abs(target-current)/50;
+			clearInterval(element.timerId);
+			element.timerId=setInterval(function(){
+				strp=(target-current)>0?step:-step;
+				current+=strp;
+			if (Math.abs(target-current)<Math.abs(step)) {
+				clearInterval(element.timerId);
+				element.style.left=target+"px";
+			}else {
+				element.style.left=current+"px";
+			}
+			},20)
+		}
+		var box=document.getElementById("box");
+		var inner=box.children[0];
+		var imgWidth=inner.offsetWidth;
+		var ulObj = inner.children[0];
+		var list=ulObj.children;
+		var focusD=inner.children[2];
+		var square=inner.children[1];
+		var left=focusD.children[0];
+		var rigth=focusD.children[1];
+		var squarelist=square.children;
+		var index=0;
+		for (var i = 0; i < squarelist.length; i++) {
+			squarelist[i].setAttribute("index",i);
+			squarelist[i].onclick=function(){
+				for (var i = 0; i < squarelist.length; i++) {
+					squarelist[i].className="";
+				}
+				this.className="current";
+				index=this.getAttribute("index");
+				animate(ulObj, -1*index*imgWidth);
+			}
+		}
+		ulObj.appendChild(list[0].cloneNode(true));
+		var timeId=setInterval(function(){
+			clickHandle();
+		},1000)
+		function clickHandle() {
+			if (index==list.length-1) {
+				index=0;
+				ulObj.style.left=0+"px";
+			}
+				index++;
+				animate(ulObj,-index*imgWidth);
+				if (index==list.length-1) {
+					squarelist[squarelist.length-1].className="";
+					squarelist[0].className="current";
+				}else {
+					for (var i = 0; i < squarelist.length; i++) {
+						squarelist[i].className="";
+					}
+					squarelist[index].className="current";
+				}
+			}
+
+
+
+	</script>
+</body>
+</html>

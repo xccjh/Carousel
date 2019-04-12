@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Document</title>
+    <style>
+        html,body,ul,li,img,a,p,div,input,form {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        ul {
+            list-style: none;
+        }
+        .clearfix::before,
+        .clearfix::after {
+            content: "";
+            display: block;
+            height: 0;
+            line-height: 0px;
+            clear: both;
+            visibility: hidden;
+        }
+        .jd_layout {
+            width: 720px;
+            margin: 20px auto;
+            position: relative;
+        }
+        .jd_banner {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        .jd_bannerImg {
+            position: relative;
+        }
+        .jd_bannerImg > li {
+            float: left;
+        }
+        .jd_bannerImg > li img {
+            width: 100%;
+            display: block;
+        }
+        .jd_bannerIndicater {
+            width: 128px;
+            height: 10px;
+            position: absolute;
+            left: 50%;
+            bottom: 5px;
+            transform: translateX(-50%);
+        }
+        .jd_bannerIndicater > li {
+            width: 6px;
+            height: 6px;
+            border-radius: 3px;
+            border: 1px solid #fff;
+            float: left;
+            margin-left: 10px;
+        }
+        .jd_bannerIndicater > li:first-of-type {
+            margin-left: 0;
+        }
+        .jd_bannerIndicater > li.active {
+            background-color: #fff;
+        }
+        .arrow {
+            position: absolute;
+            width: 720px;
+            height: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .arrow .left {
+            width: 30px;
+            height: 60px;
+            background-color: blue;
+            text-align: center;
+            line-height: 60px;
+            color: rgba(255, 255, 255, .2);
+            background-color: rgba(0, 0, 0, .2);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .arrow .right {
+            width: 30px;
+            height: 60px;
+            background-color: blue;
+            text-align: center;
+            line-height: 60px;
+            color: rgba(255, 255, 255, .2);
+            background-color: rgba(0, 0, 0, .2);
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="jd_layout" id="lbt">
+        <div class="jd_banner">
+            <ul class="jd_bannerImg clearfix">
+                <li>
+                    <a href="javascript:;">
+						<img src="upload/l1.jpg">
+					</a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+						<img src="upload/l2.jpg">
+					</a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+						<img src="upload/l3.jpg">
+					</a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+						<img src="upload/l4.jpg">
+					</a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+						<img src="upload/l5.jpg">
+					</a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+						<img src="upload/l6.jpg">
+					</a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+						<img src="upload/l7.jpg">
+					</a>
+                </li>
+                <li>
+                    <a href="javascript:;">
+						<img src="upload/l8.jpg">
+					</a>
+                </li>
+            </ul>
+            <ul class="jd_bannerIndicater">
+                <li class="active"></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+        <div class="arrow">
+            <div class="left"><</div>
+            <div class="right">></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    window.onload = function() {
+        bannerEffect();
+    }
+    //轮播图效果
+    function bannerEffect() {
+        // 获取元素
+        var banner = document.querySelector(".jd_banner");
+        var imgBox=banner.querySelector("ul:first-of-type");
+        var first=banner.querySelector("li:first-of-type");
+        var last=banner.querySelector("li:last-of-type");
+        var left =document.getElementsByClassName("left")[0];
+        var right =document.getElementsByClassName("right")[0];
+        var circle = document.getElementsByClassName("jd_bannerIndicater")[0].children;
+        for (var i = 0; i < circle.length; i++) {
+            circle[i].setAttribute("indexs",i);
+            circle[i].onmouseenter=function() {
+                    clearInterval(timeId);
+                    imgBox.style.transition="none";
+                    index=parseInt(this.getAttribute("indexs"))+1;
+                    setIndicator(index);
+                    imgBox.style.transition="left 0.5s ease-in-out";
+                    imgBox.style.left = (-index*bannerWidth)+"px";
+            }
+        }
+
+        // 首尾添加元素实现轮播方法二
+        imgBox.appendChild(first.cloneNode(true));
+        imgBox.insertBefore(last.cloneNode(true),imgBox.firstChild);
+        //动态设置ul,li和初始偏移
+        var lis= imgBox.querySelectorAll("li");
+        var count =lis.length;
+        var timeId;
+        var bannerWidth=banner.offsetWidth;
+        imgBox.style.width = count*bannerWidth+"px";
+        for (var i = 0; i < lis.length; i++) {
+            lis[i].style.width = bannerWidth+"px";
+        }
+        //点击左元箭头节流阀
+        var isEnd=true;
+        //添加索引以计算轮播宽度
+        var index=1;
+        imgBox.style.left = -index*bannerWidth+'px';
+        // 自动轮播
+        function startTime() {
+            timeId=setInterval(function() {
+            index++;
+            imgBox.style.transition = 'left 0.5s ease-in-out';
+            imgBox.style.left = (-index*bannerWidth)+"px";
+            setTimeout(function() {
+                if (index==count-1) {
+                index=1;
+                imgBox.style.transition="none";
+                imgBox.style.left = (-index*bannerWidth)+"px";
+                setTimeout(function(){
+                },50)
+            }
+            setIndicator(index);
+            },500);
+        },1000);
+        }
+        startTime();
+        // 点击左右箭头
+        right.addEventListener("click",function() {
+            if (isEnd) {
+                isEnd=false;
+                clearInterval(timeId);
+                if (index==count-1) {
+                    index=1;
+                    imgBox.style.transition="none";
+                    imgBox.style.left = (-index*bannerWidth)+"px";
+                }
+                 imgBox.style.transition="none";
+                 index++;
+                 setIndicator(index);
+
+                 setTimeout(function() {
+                 imgBox.style.transition = 'left 0.5s ease-in-out';
+                 imgBox.style.left = -index*bannerWidth+"px";
+                     isEnd=true;
+                 },30);
+            }
+            })
+        left.addEventListener("click",function() {
+            if (isEnd) {
+                isEnd=false;
+                clearInterval(timeId);
+                if (index==0) {
+                    index=count-2;
+                    imgBox.style.transition="none";
+                    imgBox.style.left = -index*bannerWidth+"px";
+
+                }
+                index--;
+                setIndicator(index);
+                imgBox.style.transition="none";
+                setTimeout(function() {
+                    imgBox.style.transition = 'left 0.5s ease-in-out';
+                    imgBox.style.left = -index*bannerWidth+"px";
+                    isEnd=true;
+                 },30);
+            }
+        })
+        // 小圆点跟随函数
+        function setIndicator (index) {
+            var indicators=banner.querySelector("ul:last-of-type").querySelectorAll("li");
+            for (var i = 0; i < indicators.length; i++) {
+                indicators[i].classList.remove("active");
+            }
+            var xindex = index;
+            if (xindex==0) {
+                xindex=8;
+            }
+            if (xindex==9) {
+                xindex=1;
+            }
+            indicators[xindex-1].setAttribute("class","active");
+        }
+        // 进入轮播图停止离开轮播图继续轮播
+        lbt.onmouseenter=function (){
+            left.style.backgroundColor="rgba(0, 0, 0, 0.6)";
+            left.style.color="rgba(255, 255, 255, 0.6)";
+            right.style.backgroundColor="rgba(0, 0, 0, 0.6)";
+            right.style.color="rgba(255, 255, 255, 0.6)";
+            clearInterval(timeId);
+            left.style.cursor = 'pointer';
+            right.style.cursor = 'pointer';
+        }
+        lbt.onmouseleave=function (){
+            left.style.backgroundColor="rgba(0, 0, 0, 0.2)";
+            left.style.color="rgba(255, 255, 255, 0.2)";
+            right.style.backgroundColor="rgba(0, 0, 0, 0.2)";
+            right.style.color="rgba(255, 255, 255, 0.2)";
+            startTime();
+        }
+    }
+    </script>
+</body>
+
+</html>
